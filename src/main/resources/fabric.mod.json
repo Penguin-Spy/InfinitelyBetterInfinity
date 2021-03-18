@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "infinitelybetterinfinity",
+  "version": "${version}",
+
+  "name": "Infinitely Better Infinity",
+  "description": "Makes the infinity snapshot cooler 🕶",
+  "authors": [
+    "Penguin_Spy"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/infinitelybetterinfinity/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "ml.cheeseos.infinitelybetterinfinity.InfinitelyBetterInfinity"
+    ]
+  },
+  "mixins": [
+    "infinitelybetterinfinity.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "minecraft": "1.16-20.w.14"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
