@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.PortalForcer;
+import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -31,6 +32,8 @@ public class PortalForcerMixin {
      * @author Penguin_Spy
      * @reason this is a terrible idea but also this code will never change because its only for 1 update, so yeet!
      *  See the code below for why this isn't an @Inject.
+     *  Oh what it actually does: generates a neither portal if the entity is coming from a _generated dimension (and links it back there),
+     *  otherwise makes a normal nether portal
      * @param entity aww, thanks minecraft! that's real nice of you to conveniently include the entity creating the portal!
      *               I honestly don't know what I would have done otherwise! :)
      * @return great question.
@@ -196,8 +199,13 @@ public class PortalForcerMixin {
             }
         }
 
-        // Oh also this changes and i have no ғʀᴇᴀᴋɪɴɢ idea how i would change it from NETHER_PORTAL
-        BlockState blockState = Blocks.NEITHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, aw == 0 ? Direction.Axis.Z : Direction.Axis.X);
+        // Oh also this changes and i have no ғʀᴇᴀᴋɪɴɢ idea how i would change it with injection
+        BlockState blockState;
+        if(entity.dimension != DimensionType.THE_NETHER) {
+            blockState = Blocks.NEITHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, aw == 0 ? Direction.Axis.Z : Direction.Axis.X);
+        } else {
+            blockState = Blocks.NETHER_PORTAL.getDefaultState().with(NetherPortalBlock.AXIS, aw == 0 ? Direction.Axis.Z : Direction.Axis.X);
+        }
 
         for(ai = 0; ai < 2; ++ai) {
             for(aj = 0; aj < 3; ++aj) {
@@ -205,11 +213,13 @@ public class PortalForcerMixin {
                 this.world.setBlockState(mutable, blockState, 18);
                 // START of addition
                 // this is an @Overwrite because i have no clue how I would use the local variables (mutable & entity) otherwise
-                NetherPortalBlockEntity neitherPortal = (NetherPortalBlockEntity) this.world.getBlockEntity(mutable);
-                if(neitherPortal == null) {
-                    this.world.setBlockEntity(mutable, new NetherPortalBlockEntity(((EntityInterface)entity).getPreviousDimensionID()));
-                } else {
-                    neitherPortal.setDimension(((EntityInterface) entity).getPreviousDimensionID());
+                if(entity.dimension != DimensionType.THE_NETHER) {
+                    NetherPortalBlockEntity neitherPortal = (NetherPortalBlockEntity) this.world.getBlockEntity(mutable);
+                    if (neitherPortal == null) {
+                        this.world.setBlockEntity(mutable, new NetherPortalBlockEntity(((EntityInterface) entity).getPreviousDimensionID()));
+                    } else {
+                        neitherPortal.setDimension(((EntityInterface) entity).getPreviousDimensionID());
+                    }
                 }
                 // END of addition
                 Optional<PointOfInterestType> optional = PointOfInterestType.from(this.world.getBlockState(mutable));
